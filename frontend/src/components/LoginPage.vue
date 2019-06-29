@@ -1,49 +1,66 @@
-<template lang="html">
-  <div>
-    <h1>로그인 페이지입니다.</h1>
-      <h2>Log In</h2>
-      <form @submit="onSubmit">
-          <input placeholder="Enter your ID" v-model="uid">
-          <input placeholder="Enter your password" v-model="password">
-          <button type="submit">Login</button>
-          <div class="alert-danger" v-if="errorState">
-            <p></p>
+<template>
+<div id="login">
+  <v-container fill-height style="max-width:450px;">
+    <v-layout align-center row wrap>
+      <v-flex xs12>
+        <v-card>
+          <v-toolbar flat>
+            <v-toolbar-title>로그인</v-toolbar-title>
+          </v-toolbar>
+          <div class="pa-3">
+            <v-text-field v-model="user.uid" label="ID"></v-text-field>
+            <v-text-field v-model="user.password" type="password" label="Password">
+            </v-text-field>
+            <v-btn color="primary" block depressend large @click="login">
+              Login
+            </v-btn>
+            <v-btn color="success" router :to="{name: 'signUp'}">SignUp</v-btn>
           </div>
-      </form>
-  </div>
+        </v-card>
+        <v-alert class="mb-3" :value="this.$store.state.isLogin" type="success">
+          로그인이 완료되었습니다.
+        </v-alert>
+        <v-alert class="mb-3" :value="this.$store.state.isLoginError" type="error">
+          아이디와 비밀번호를 확인해주세요.
+        </v-alert>
+      </v-flex>
+    </v-layout>
+  </v-container>
+</div>
 </template>
 
 <script>
-import {mapActions, mapGetters} from 'vuex'
+
 export default {
-  name: 'Login',
-  data: () => ({
-    uid: '',
-    password: ''
-  }),
-  methods: {
-    ...mapActions(['login']),
-    async onSubmit () {
-      try {
-        let loginResult = await this.login({uid: this.uid, password: this.password})
-        if (loginResult) this.goToPages()
-      } catch (err) {
-        console.error(err)
+  data: function () {
+    return {
+      user: {
+        uid: '',
+        password: '',
+        name: ''
+      },
+      url: {
+        signUpUrl: '/signUp'
       }
-    },
-    goToPages () {
-      this.$router.push({
-        name: 'IndexPage'
-      })
     }
   },
-  computed: {
-    ...mapGetters({
-      errorState: 'getErrorState' // getter로 errorState를 받는다
-    })
+  methods: {
+    login: function (event) {
+      this.$http.post('/api/login', {
+        user: this.user
+      })
+        .then(
+          (response) => {
+            alert('success login')
+            this.$store.dispatch('login', response.data.uid)
+          }
+        )
+        .catch(function (error) {
+          if (error) {
+            this.$store.state.isLoginError = true
+          }
+        })
+    }
   }
 }
 </script>
-
-<style lang="css">
-</style>

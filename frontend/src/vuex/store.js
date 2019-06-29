@@ -1,20 +1,30 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import getters from './getters'
-import actions from './actions'
-import mutations from './mutations'
-
+import router from '../router/index'
 Vue.use(Vuex)
 
-const state = {
-  uid: '',
-  errorState: '',
-  isAuth: false
-}
-
 export default new Vuex.Store({
-  state,
-  mutations,
-  getters,
-  actions
+  state: {
+    loginfo: null,
+    isLogin: false,
+    isLoginError: false
+  },
+  mutations: {
+    loginsuccess (state, payload) {
+      state.isLogin = true
+      state.loginfo = payload
+      console.log('123')
+      console.log(payload)
+    }
+  },
+  actions: {
+    login ({
+      state,
+      commit
+    }, user) {
+      commit('loginsuccess', user)
+      router.push({name: 'Information'})
+    }
+  }
+
 })
